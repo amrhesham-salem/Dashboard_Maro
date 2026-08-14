@@ -786,7 +786,7 @@ function renderPlanner() {
       return `
         <div onclick="togglePlanTask(${plan.id}, ${t.id})" class="flex items-center gap-3 p-3 bg-white/5 rounded-lg mb-2 hover:bg-white/10 transition group cursor-pointer text-right">
           <input type="checkbox" ${t.done ? "checked" : ""} class="w-4 h-4 accent-[#E30613] cursor-pointer shrink-0" onclick="event.stopPropagation()" onchange="togglePlanTask(${plan.id}, ${t.id})">
-          <span class="text-sm ${t.done ? 'text-gray-500 line-through' : 'text-white'} break-words flex-1 transition-all">${t.text}</span>
+          <span class="text-sm ${t.done ? 'text-gray-500 line-through' : 'text-white'} wrap-break-word flex-1 transition-all">${t.text}</span>
           ${taskDeadlineHtml}
           <button onclick="event.stopPropagation(); deletePlanTask(${plan.id}, ${t.id})" class="text-gray-600 hover:text-[#E30613] text-xs opacity-100 md:opacity-0 group-hover:opacity-100 transition p-1 shrink-0">مسح</button>
         </div>
