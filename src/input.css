@@ -1,21 +1,27 @@
 @import "tailwindcss";
-@theme {
---animate-line-slide: line-slide 0.8s ease-out forwards;
 
-@keyframes line-slide {
+@theme {
+  --animate-line-slide: line-slide 0.8s ease-out forwards;
+
+  @keyframes line-slide {
     from {
-    transform: scaleX(0);
-    opacity: 0;
+      transform: scaleX(0);
+      opacity: 0;
     }
     to {
-    transform: scaleX(1);
-    opacity: 1;
+      transform: scaleX(1);
+      opacity: 1;
     }
-    }
+  }
 }
 
-/* كلاس مخصص للخطين بتوعنا */
+/* Animation for sidebar logo lines */
 .zsc-line {
-  transform-origin: right; /* عشان يرسم من اليمين للشمال زي العربي */
-animation: var(--animate-line-slide);
+  transform-origin: right;
+  animation: var(--animate-line-slide);
+}
+
+/* Accordion transition */
+.transition-350 {
+  transition-duration: 350ms;
 }
