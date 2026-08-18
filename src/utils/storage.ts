@@ -14,25 +14,13 @@ import type {
 } from "../types";
 
 // ===== DEFAULT DATA =====
-// Matches getSubConfig() in script.js exactly
-const DEFAULT_SUBJECTS: SubjectConfig[] = [
-  { name: "داتا بيز", lectures: 12 },
-  { name: "داتا كوم", lectures: 12 },
-  { name: "جرافيك", lectures: 12 },
-  { name: "الكترونكس", lectures: 12 },
-  { name: "احتمالات 2", lectures: 12 },
-];
+// New users start with an empty subjects list.
+// Existing localStorage data (zsc_subjects_config) is preserved as-is.
+const DEFAULT_SUBJECTS: SubjectConfig[] = [];
 
-// Matches getCrsConfig() in script.js exactly
-const DEFAULT_COURSES: CourseConfig[] = [
-  { name: "JavaScript" },
-  { name: "React" },
-  { name: "Next.js" },
-  { name: "Tailwind" },
-  { name: "TypeScript" },
-  { name: "Git & GitHub" },
-  { name: "Testing" },
-];
+// New users start with an empty courses list.
+// Existing localStorage data (zsc_courses_config) is preserved as-is.
+const DEFAULT_COURSES: CourseConfig[] = [];
 
 // ===== STORAGE KEYS (identical to script.js) =====
 const KEYS = {

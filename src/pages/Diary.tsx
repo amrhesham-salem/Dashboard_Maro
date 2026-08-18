@@ -149,6 +149,9 @@ export function Diary() {
               type="text"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSave();
+              }}
               placeholder="مثال: هندسة البرمجيات"
               className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#E30613] transition placeholder:text-gray-600"
             />
@@ -163,6 +166,9 @@ export function Diary() {
             type="text"
             value={done}
             onChange={(e) => setDone(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSave();
+            }}
             placeholder="مثال: حليت 5 أسئلة على الـ Trees"
             className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#E30613] transition placeholder:text-gray-600"
           />
@@ -176,6 +182,9 @@ export function Diary() {
             type="text"
             value={remaining}
             onChange={(e) => setRemaining(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSave();
+            }}
             placeholder="مثال: لسه Chapter 4 و 5"
             className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#E30613] transition placeholder:text-gray-600"
           />

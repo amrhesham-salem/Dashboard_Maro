@@ -334,6 +334,9 @@ export function Planner() {
               type="text"
               value={planTitle}
               onChange={(e) => setPlanTitle(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSavePlan();
+              }}
               placeholder="مثال: زنقة ميد، زنقة فاينل، أو تاسكات"
               className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#E30613] transition placeholder:text-gray-600"
             />
@@ -346,6 +349,9 @@ export function Planner() {
               type="number"
               value={planDays}
               onChange={(e) => setPlanDays(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSavePlan();
+              }}
               placeholder="مثال: 10"
               min={1}
               className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#E30613] transition placeholder:text-gray-600"

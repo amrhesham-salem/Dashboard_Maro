@@ -151,6 +151,9 @@ export function Settings() {
               type="text"
               value={newSubjectName}
               onChange={(e) => setNewSubjectName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleAddSubject();
+              }}
               placeholder="اسم المادة"
               className="flex-1 bg-white/5 border border-white/10 rounded-lg p-3 text-white text-sm focus:outline-none focus:border-[#E30613] transition placeholder:text-gray-600"
             />
@@ -159,6 +162,9 @@ export function Settings() {
                 type="number"
                 value={newSubjectLectures}
                 onChange={(e) => setNewSubjectLectures(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleAddSubject();
+                }}
                 placeholder="عدد المحاضرات"
                 min={1}
                 max={50}
@@ -202,6 +208,9 @@ export function Settings() {
               type="text"
               value={newCourseName}
               onChange={(e) => setNewCourseName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleAddCourse();
+              }}
               placeholder="اسم الكورس"
               className="flex-1 bg-white/5 border border-white/10 rounded-lg p-3 text-white text-sm focus:outline-none focus:border-[#E30613] transition placeholder:text-gray-600"
             />
