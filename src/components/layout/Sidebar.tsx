@@ -1,35 +1,29 @@
-import React from "react";
+import { NavLink } from "react-router-dom";
 import { useApp } from "../../context/AppContext";
-import type { Page } from "../../types";
 
 // ===== NAV ITEMS =====
 interface NavItem {
-  id: Page;
+  to: string;
   label: string;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: "home", label: "الرئيسية" },
-  { id: "diary", label: "اليوميات" },
-  { id: "subjects", label: "مواد الكلية" },
-  { id: "courses", label: "تتبع الكورسات" },
-  { id: "planner", label: "خطة الأيام" },
-  { id: "settings", label: "الإعدادات" },
-  { id: "contact", label: "تواصل معي" },
+  { to: "/", label: "الرئيسية" },
+  { to: "/diary", label: "اليوميات" },
+  { to: "/subjects", label: "مواد الكلية" },
+  { to: "/courses", label: "تتبع الكورسات" },
+  { to: "/planner", label: "خطة الأيام" },
+  { to: "/settings", label: "الإعدادات" },
+  { to: "/contact", label: "تواصل معي" },
 ];
 
 const ACTIVE_CLASS =
-  "bg-[#E30613]/10 text-[#E30613] p-3 rounded-xl font-bold cursor-pointer";
+  "block bg-[#E30613]/10 text-[#E30613] p-3 rounded-xl font-bold cursor-pointer";
 const INACTIVE_CLASS =
-  "text-gray-400 hover:text-white p-3 rounded-xl transition cursor-pointer";
+  "block text-gray-400 hover:text-white p-3 rounded-xl transition cursor-pointer";
 
 export function Sidebar() {
-  const { activePage, setActivePage, isSidebarOpen, closeSidebar } = useApp();
-
-  const handleNavClick = (page: Page) => {
-    setActivePage(page);
-    closeSidebar();
-  };
+  const { isSidebarOpen, closeSidebar } = useApp();
 
   return (
     <>
@@ -82,38 +76,39 @@ export function Sidebar() {
 
         {/* Nav */}
         <nav className="space-y-2 flex-1 mt-4 overflow-y-auto pr-1 pb-24 md:pb-0">
-          <div
-            id="navHome"
-            onClick={() => handleNavClick("home")}
-            className={activePage === "home" ? ACTIVE_CLASS : INACTIVE_CLASS}
+          <NavLink
+            to="/"
+            end
+            onClick={closeSidebar}
+            className={({ isActive }) => (isActive ? ACTIVE_CLASS : INACTIVE_CLASS)}
           >
             الرئيسية
-          </div>
+          </NavLink>
 
           <hr className="border-t border-[#E30613]/20 my-4 shadow-[0_0_10px_rgba(227,6,19,0.1)]" />
 
           {NAV_ITEMS.slice(1, 5).map((item) => (
-            <div
-              key={item.id}
-              id={`nav${item.id.charAt(0).toUpperCase()}${item.id.slice(1)}`}
-              onClick={() => handleNavClick(item.id)}
-              className={activePage === item.id ? ACTIVE_CLASS : INACTIVE_CLASS}
+            <NavLink
+              key={item.to}
+              to={item.to}
+              onClick={closeSidebar}
+              className={({ isActive }) => (isActive ? ACTIVE_CLASS : INACTIVE_CLASS)}
             >
               {item.label}
-            </div>
+            </NavLink>
           ))}
 
           <hr className="border-t border-white/5 my-4" />
 
           {NAV_ITEMS.slice(5).map((item) => (
-            <div
-              key={item.id}
-              id={`nav${item.id.charAt(0).toUpperCase()}${item.id.slice(1)}`}
-              onClick={() => handleNavClick(item.id)}
-              className={activePage === item.id ? ACTIVE_CLASS : INACTIVE_CLASS}
+            <NavLink
+              key={item.to}
+              to={item.to}
+              onClick={closeSidebar}
+              className={({ isActive }) => (isActive ? ACTIVE_CLASS : INACTIVE_CLASS)}
             >
               {item.label}
-            </div>
+            </NavLink>
           ))}
         </nav>
       </aside>

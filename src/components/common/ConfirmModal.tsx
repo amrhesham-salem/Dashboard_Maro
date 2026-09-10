@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useApp } from "../../context/AppContext";
 
 // Matches the original showConfirm() modal from script.js

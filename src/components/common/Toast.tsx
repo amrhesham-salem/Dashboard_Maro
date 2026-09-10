@@ -1,17 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { ToastItem } from "../../types";
 
 // Matches the original showToast() visual design from script.js
 function ToastNotification({ toast }: { toast: ToastItem }) {
   const [visible, setVisible] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     // Animate in after mount
-    timerRef.current = setTimeout(() => setVisible(true), 10);
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
+    const timer = setTimeout(() => setVisible(true), 10);
+    return () => clearTimeout(timer);
   }, []);
 
   const isError = toast.type === "error";

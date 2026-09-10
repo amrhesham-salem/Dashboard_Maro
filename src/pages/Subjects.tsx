@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   getSubjectsConfig,
   getSubjectsData,
@@ -8,12 +8,10 @@ import type { SubjectConfig } from "../types";
 
 // ===== LECTURE ITEM =====
 function LectureItem({
-  name,
   index,
   checked,
   onChange,
 }: {
-  name: string;
   index: number;
   checked: boolean;
   onChange: (index: number, value: boolean) => void;
@@ -47,10 +45,8 @@ function LectureItem({
 // ===== SUBJECT ACCORDION =====
 function SubjectAccordion({
   subject,
-  subjectIndex,
 }: {
   subject: SubjectConfig;
-  subjectIndex: number;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   // Keep local state in sync with localStorage
@@ -114,7 +110,6 @@ function SubjectAccordion({
           {lectures.map((checked, i) => (
             <LectureItem
               key={i}
-              name={subject.name}
               index={i}
               checked={checked}
               onChange={handleLectureChange}
@@ -136,8 +131,8 @@ export function Subjects() {
         <h1 className="text-4xl font-extrabold text-white">مواد الكلية</h1>
       </header>
       <div className="max-w-2xl space-y-4">
-        {subCfg.map((sub, i) => (
-          <SubjectAccordion key={sub.name} subject={sub} subjectIndex={i} />
+        {subCfg.map((sub) => (
+          <SubjectAccordion key={sub.name} subject={sub} />
         ))}
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
 import {
   getCoursesConfig,
@@ -8,42 +8,46 @@ import {
 import type { CourseConfig } from "../types";
 
 // ===== COURSE CARD =====
-function CourseCard({
-  course,
-  courseIndex,
-}: {
-  course: CourseConfig;
-  courseIndex: number;
-}) {
+function CourseCard({ course }: { course: CourseConfig }) {
   const { showToast } = useApp();
   const inputRef = useRef<HTMLInputElement>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [percent, setPercent] = useState<number>(() => {
     const data = getCoursesData();
     return data[course.name] ?? 0;
   });
 
+  const [displayPercent, setDisplayPercent] = useState(percent);
+
+  // Clean up animation interval on unmount
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
+
   // Animated counter — matches script.js addCoursePercent() animation
-  const animateCounter = (from: number, to: number, onUpdate: (v: number) => void) => {
+  const animateCounter = (from: number, to: number) => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
     const steps = 30;
     const dur = 1000;
     const stepTime = dur / steps;
     const valStep = (to - from) / steps;
     let i = 0;
     let current = from;
-    const interval = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       i++;
       current += valStep;
       if (i >= steps) {
-        clearInterval(interval);
-        onUpdate(to);
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        intervalRef.current = null;
+        setDisplayPercent(to);
       } else {
-        onUpdate(Math.round(current));
+        setDisplayPercent(Math.round(current));
       }
     }, stepTime);
   };
-
-  const [displayPercent, setDisplayPercent] = useState(percent);
 
   const handleAdd = () => {
     const val = parseInt(inputRef.current?.value ?? "");
@@ -57,7 +61,7 @@ function CourseCard({
     data[course.name] = updated;
     saveCoursesData(data);
 
-    animateCounter(percent, updated, setDisplayPercent);
+    animateCounter(percent, updated);
     setPercent(updated);
 
     if (inputRef.current) inputRef.current.value = "";
@@ -122,8 +126,8 @@ export function Courses() {
         <h1 className="text-4xl font-extrabold text-white">تتبع الكورسات</h1>
       </header>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-6xl">
-        {crsCfg.map((c, i) => (
-          <CourseCard key={c.name} course={c} courseIndex={i} />
+        {crsCfg.map((c) => (
+          <CourseCard key={c.name} course={c} />
         ))}
       </div>
     </div>

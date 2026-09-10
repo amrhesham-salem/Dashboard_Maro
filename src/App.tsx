@@ -1,5 +1,5 @@
-import React from "react";
-import { AppProvider, useApp } from "./context/AppContext";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AppProvider } from "./context/AppContext";
 import { Layout } from "./components/layout/Layout";
 import { Home } from "./pages/Home";
 import { Diary } from "./pages/Diary";
@@ -9,38 +9,25 @@ import { Planner } from "./pages/Planner";
 import { Settings } from "./pages/Settings";
 import { Contact } from "./pages/Contact";
 
-// ===== PAGE SWITCHER =====
-function PageContent() {
-  const { activePage } = useApp();
-
-  switch (activePage) {
-    case "home":
-      return <Home />;
-    case "diary":
-      return <Diary />;
-    case "subjects":
-      return <Subjects />;
-    case "courses":
-      return <Courses />;
-    case "planner":
-      return <Planner />;
-    case "settings":
-      return <Settings />;
-    case "contact":
-      return <Contact />;
-    default:
-      return <Home />;
-  }
-}
-
 // ===== APP ROOT =====
 function App() {
   return (
-    <AppProvider>
-      <Layout>
-        <PageContent />
-      </Layout>
-    </AppProvider>
+    <BrowserRouter>
+      <AppProvider>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="diary" element={<Diary />} />
+            <Route path="subjects" element={<Subjects />} />
+            <Route path="courses" element={<Courses />} />
+            <Route path="planner" element={<Planner />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="contact" element={<Contact />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Routes>
+      </AppProvider>
+    </BrowserRouter>
   );
 }
 

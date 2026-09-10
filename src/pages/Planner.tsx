@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useApp } from "../context/AppContext";
 import { getPlans, savePlans } from "../utils/storage";
 import type { Plan, PlanTask } from "../types";

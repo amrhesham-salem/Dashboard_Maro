@@ -1,16 +1,14 @@
-import React, {
+import {
   createContext,
   useContext,
   useState,
   useCallback,
   type ReactNode,
 } from "react";
-import type { Page, ToastItem, ToastType, ConfirmState } from "../types";
+import type { ToastItem, ToastType, ConfirmState } from "../types";
 
 // ===== CONTEXT SHAPE =====
 interface AppContextValue {
-  activePage: Page;
-  setActivePage: (page: Page) => void;
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
   closeSidebar: () => void;
@@ -26,7 +24,6 @@ const AppContext = createContext<AppContextValue | null>(null);
 
 // ===== PROVIDER =====
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [activePage, setActivePage] = useState<Page>("home");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const [confirm, setConfirm] = useState<ConfirmState>({
@@ -44,18 +41,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const closeSidebar = useCallback(() => {
     setIsSidebarOpen(false);
   }, []);
-
-  // --- Navigate ---
-  const navigate = useCallback(
-    (page: Page) => {
-      setActivePage(page);
-      // Auto-close sidebar on mobile when navigating
-      if (window.innerWidth < 768 && isSidebarOpen) {
-        setIsSidebarOpen(false);
-      }
-    },
-    [isSidebarOpen],
-  );
 
   // --- Toast ---
   const showToast = useCallback((message: string, type: ToastType = "success") => {
@@ -81,8 +66,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   return (
     <AppContext.Provider
       value={{
-        activePage,
-        setActivePage: navigate,
         isSidebarOpen,
         toggleSidebar,
         closeSidebar,

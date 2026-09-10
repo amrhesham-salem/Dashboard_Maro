@@ -1,4 +1,3 @@
-import React, { useMemo } from "react";
 import {
   getSubjectsConfig,
   getSubjectsData,
@@ -68,30 +67,26 @@ export function Home() {
   const crsData = getCoursesData();
 
   // Compute stats — same logic as renderHome() in script.js
-  const stats = useMemo(() => {
-    let totalLec = 0;
-    let doneLec = 0;
-    let subTotal = 0;
+  let totalLec = 0;
+  let doneLec = 0;
+  let subTotal = 0;
 
-    subCfg.forEach((sub) => {
-      const lectures = subData[sub.name] ?? Array(sub.lectures).fill(false);
-      totalLec += sub.lectures;
-      doneLec += lectures.filter(Boolean).length;
-      subTotal += Math.round(
-        (lectures.filter(Boolean).length / sub.lectures) * 100,
-      );
-    });
+  subCfg.forEach((sub) => {
+    const lectures = subData[sub.name] ?? Array(sub.lectures).fill(false);
+    totalLec += sub.lectures;
+    doneLec += lectures.filter(Boolean).length;
+    subTotal += Math.round(
+      (lectures.filter(Boolean).length / sub.lectures) * 100,
+    );
+  });
 
-    let crsTotal = 0;
-    crsCfg.forEach((c) => {
-      crsTotal += crsData[c.name] ?? 0;
-    });
+  let crsTotal = 0;
+  crsCfg.forEach((c) => {
+    crsTotal += crsData[c.name] ?? 0;
+  });
 
-    const subAvg = subCfg.length ? Math.round(subTotal / subCfg.length) : 0;
-    const crsAvg = crsCfg.length ? Math.round(crsTotal / crsCfg.length) : 0;
-
-    return { doneLec, totalLec, subAvg, crsAvg };
-  }, [subCfg, subData, crsCfg, crsData]);
+  const subAvg = subCfg.length ? Math.round(subTotal / subCfg.length) : 0;
+  const crsAvg = crsCfg.length ? Math.round(crsTotal / crsCfg.length) : 0;
 
   return (
     <div>
@@ -106,17 +101,17 @@ export function Home() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mb-12">
         <StatCard
           label="محاضرات خلصت"
-          value={String(stats.doneLec)}
-          sub={`من ${stats.totalLec} محاضرة`}
+          value={String(doneLec)}
+          sub={`من ${totalLec} محاضرة`}
         />
         <StatCard
           label="متوسط المواد"
-          value={`${stats.subAvg}%`}
+          value={`${subAvg}%`}
           sub="إجمالي التقدم"
         />
         <StatCard
           label="متوسط الكورسات"
-          value={`${stats.crsAvg}%`}
+          value={`${crsAvg}%`}
           sub="إجمالي التقدم"
         />
       </div>

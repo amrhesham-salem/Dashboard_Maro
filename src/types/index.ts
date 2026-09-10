@@ -3,16 +3,6 @@
 // Matching the exact localStorage data structures from script.js
 // ============================================================
 
-// ===== PAGES =====
-export type Page =
-  | "home"
-  | "diary"
-  | "subjects"
-  | "courses"
-  | "planner"
-  | "settings"
-  | "contact";
-
 // ===== DIARY =====
 // localStorage key: "zsc_diary"
 export interface DiaryEntry {

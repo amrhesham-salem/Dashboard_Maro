@@ -1,4 +1,4 @@
-import React from "react";
+import type { ReactNode } from "react";
 import Amr2 from "../assets/Amr2.png";
 
 // ===== SOCIAL LINK =====
@@ -11,7 +11,7 @@ function SocialLink({
   href: string;
   label: string;
   hoverClass: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
 }) {
   return (
     <a

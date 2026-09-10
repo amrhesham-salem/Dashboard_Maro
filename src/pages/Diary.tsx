@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useApp } from "../context/AppContext";
 import { getDiaryEntries, saveDiaryEntries } from "../utils/storage";
 import type { DiaryEntry } from "../types";
