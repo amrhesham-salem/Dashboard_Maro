@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   getSubjectsConfig,
   getSubjectsData,
@@ -16,6 +17,8 @@ function LectureItem({
   checked: boolean;
   onChange: (index: number, value: boolean) => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="rounded-xl border border-white/5 overflow-hidden mb-2">
       <div
@@ -25,17 +28,14 @@ function LectureItem({
         <span
           className={`text-sm ${checked ? "text-white font-bold" : "text-gray-400"}`}
         >
-          محاضرة {index + 1}
+          {t("subjects.lecture", { num: index + 1 })}
         </span>
         <input
           type="checkbox"
           checked={checked}
-          onChange={(e) => {
-            e.stopPropagation();
-            onChange(index, e.target.checked);
-          }}
+          onChange={(e) => onChange(index, e.target.checked)}
           onClick={(e) => e.stopPropagation()}
-          className="w-4 h-4 accent-[#E30613] cursor-pointer"
+          className="accent-[#E30613] w-5 h-5 cursor-pointer"
         />
       </div>
     </div>
@@ -48,6 +48,7 @@ function SubjectAccordion({
 }: {
   subject: SubjectConfig;
 }) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   // Keep local state in sync with localStorage
   const [lectures, setLectures] = useState<boolean[]>(() => {
@@ -58,12 +59,12 @@ function SubjectAccordion({
   const done = lectures.filter(Boolean).length;
   const percent = Math.round((done / subject.lectures) * 100);
 
-  const handleLectureChange = (index: number, value: boolean) => {
+  const handleToggle = (idx: number, val: boolean) => {
     const updated = [...lectures];
-    updated[index] = value;
+    updated[idx] = val;
     setLectures(updated);
 
-    // Persist to localStorage
+    // Save to localStorage
     const data = getSubjectsData();
     data[subject.name] = updated;
     saveSubjectsData(data);
@@ -74,20 +75,13 @@ function SubjectAccordion({
       {/* Header */}
       <div
         onClick={() => setIsOpen((o) => !o)}
-        className="p-6 cursor-pointer flex items-center justify-between"
+        className="p-6 cursor-pointer flex items-center justify-between hover:bg-white/5 transition"
       >
-        <div className="flex items-center gap-3">
-          <span
-            className={`text-[#E30613] text-xs transition-transform duration-300 ${
-              isOpen ? "rotate-180" : ""
-            }`}
-          >
-            ▼
-          </span>
+        <div className="flex items-center gap-4">
           <div>
             <h3 className="text-xl font-bold">{subject.name}</h3>
             <p className="text-xs text-gray-500 mt-1">
-              {done} / {subject.lectures} محاضرة — {percent}%
+              {t("subjects.progress", { done, total: subject.lectures, percent })}
             </p>
           </div>
         </div>
@@ -101,18 +95,19 @@ function SubjectAccordion({
         </div>
       </div>
 
-      {/* Collapsible Lectures Panel */}
+      {/* Accordion Content */}
       <div
-        className="overflow-hidden transition-all duration-350"
-        style={{ maxHeight: isOpen ? `${subject.lectures * 60}px` : "0" }}
+        className={`transition-350 overflow-hidden ${
+          isOpen ? "max-h-250 p-6 pt-0 opacity-100" : "max-h-0 opacity-0"
+        }`}
       >
-        <div className="px-6 pb-6">
-          {lectures.map((checked, i) => (
+        <div className="pt-4 border-t border-white/5">
+          {lectures.map((chk, idx) => (
             <LectureItem
-              key={i}
-              index={i}
-              checked={checked}
-              onChange={handleLectureChange}
+              key={idx}
+              index={idx}
+              checked={chk}
+              onChange={handleToggle}
             />
           ))}
         </div>
@@ -123,12 +118,13 @@ function SubjectAccordion({
 
 // ===== SUBJECTS PAGE =====
 export function Subjects() {
+  const { t } = useTranslation();
   const subCfg = getSubjectsConfig();
 
   return (
     <div>
       <header className="mb-12">
-        <h1 className="text-4xl font-extrabold text-white">مواد الكلية</h1>
+        <h1 className="text-4xl font-extrabold text-white">{t("subjects.title")}</h1>
       </header>
       <div className="max-w-2xl space-y-4">
         {subCfg.map((sub) => (

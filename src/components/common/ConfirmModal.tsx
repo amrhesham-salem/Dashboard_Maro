@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import { useApp } from "../../context/AppContext";
+import { useTranslation } from "react-i18next";
 
 // Matches the original showConfirm() modal from script.js
 // Animated with scale + opacity transitions
 export function ConfirmModal() {
   const { confirm, closeConfirm } = useApp();
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     if (confirm.isOpen) {
       // Trigger animation in after mount
-      const t = setTimeout(() => setVisible(true), 10);
-      return () => clearTimeout(t);
+      const timer = setTimeout(() => setVisible(true), 10);
+      return () => clearTimeout(timer);
     } else {
       setVisible(false);
     }
@@ -20,13 +22,13 @@ export function ConfirmModal() {
   if (!confirm.isOpen) return null;
 
   const handleConfirm = () => {
-    closeConfirm();
     confirm.onConfirm?.();
+    closeConfirm();
   };
 
   return (
     <div
-      className={`fixed inset-0 bg-black/80 z-100 flex items-center justify-center transition-opacity duration-300 ${
+      className={`fixed inset-0 bg-black/70 flex items-center justify-center z-50 transition-opacity duration-300 ${
         visible ? "opacity-100" : "opacity-0"
       }`}
       onClick={closeConfirm}
@@ -44,13 +46,13 @@ export function ConfirmModal() {
             onClick={closeConfirm}
             className="px-5 py-2 rounded-lg bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white transition text-sm font-bold"
           >
-            إلغاء
+            {t("confirm.cancel")}
           </button>
           <button
             onClick={handleConfirm}
             className="px-5 py-2 rounded-lg bg-[#E30613] text-white hover:bg-[#c30510] transition text-sm font-bold"
           >
-            حذف
+            {t("confirm.delete")}
           </button>
         </div>
       </div>

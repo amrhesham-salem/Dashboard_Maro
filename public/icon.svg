@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1c1c1c" />
+      <stop offset="100%" stop-color="#121212" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#E30613" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- Background rounded squircle -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  <rect x="4" y="4" width="504" height="504" rx="108" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="4" />
+
+  <!-- Inner Content Group -->
+  <g transform="translate(0, -10)">
+    <!-- "M" Character with geometric styling -->
+    <!-- Left Pillar & diagonal -->
+    <path d="M 130 310 L 130 150 L 256 265 L 256 265" 
+          fill="none" stroke="#FFFFFF" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" />
+    <!-- Right Pillar & diagonal in Zamalek Red with subtle glow -->
+    <path d="M 256 265 L 382 150 L 382 310" 
+          fill="none" stroke="#E30613" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)" />
+    
+    <!-- Central intersection dot -->
+    <circle cx="256" cy="265" r="19" fill="#E30613" />
+
+    <!-- Two Signature Zamalek Red Lines underneath -->
+    <rect x="156" y="356" width="200" height="22" rx="11" fill="#E30613" />
+    <rect x="186" y="394" width="140" height="22" rx="11" fill="#E30613" />
+  </g>
+</svg>

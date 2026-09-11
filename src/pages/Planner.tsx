@@ -1,23 +1,25 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useApp } from "../context/AppContext";
 import { getPlans, savePlans } from "../utils/storage";
 import type { Plan, PlanTask } from "../types";
 
 // ===== DAY COUNTDOWN — same logic as script.js renderPlanner() =====
-function getDaysText(endDate: string): { text: string; isOverdue: boolean } {
+function getDaysInfo(endDate: string, t: (key: string, opts?: Record<string, unknown>) => string): { text: string; isOverdue: boolean } {
   const end = new Date(endDate);
   const now = new Date();
   const endT = new Date(end.getFullYear(), end.getMonth(), end.getDate()).getTime();
   const nowT = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
   const diffDays = Math.ceil((endT - nowT) / (1000 * 60 * 60 * 24));
 
-  if (diffDays > 0) return { text: `باقي ${diffDays} يوم`, isOverdue: false };
-  if (diffDays === 0) return { text: "النهاردة آخر يوم للجدول!", isOverdue: false };
-  return { text: `الجدول انتهى من ${Math.abs(diffDays)} يوم`, isOverdue: true };
+  if (diffDays > 0) return { text: t("planner.daysRemaining", { days: diffDays }), isOverdue: false };
+  if (diffDays === 0) return { text: t("planner.lastDay"), isOverdue: false };
+  return { text: t("planner.overdue", { days: Math.abs(diffDays) }), isOverdue: true };
 }
 
 // ===== TASK DEADLINE DISPLAY =====
 function TaskDeadlineBadge({ deadline }: { deadline: string }) {
+  const { t } = useTranslation();
   if (!deadline) return null;
   const now = new Date();
   const nowT = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
@@ -30,18 +32,18 @@ function TaskDeadlineBadge({ deadline }: { deadline: string }) {
   const tDiff = Math.ceil((tEnd - nowT) / (1000 * 60 * 60 * 24));
 
   let colorClass = "text-gray-400";
-  let txt = `باقي ${tDiff} يوم`;
+  let txt = t("planner.taskDaysRemaining", { days: tDiff });
   if (tDiff < 0) {
     colorClass = "text-[#E30613]";
-    txt = `متأخر ${Math.abs(tDiff)} يوم`;
+    txt = t("planner.taskOverdue", { days: Math.abs(tDiff) });
   } else if (tDiff === 0) {
     colorClass = "text-yellow-500";
-    txt = "النهاردة!";
+    txt = t("planner.taskToday");
   }
 
   return (
     <span
-      className={`text-[10px] sm:text-xs mr-auto px-2 py-1 rounded-full bg-black/20 font-bold whitespace-nowrap ${colorClass}`}
+      className={`text-[10px] sm:text-xs ms-auto px-2 py-1 rounded-full bg-black/20 font-bold whitespace-nowrap ${colorClass}`}
     >
       {txt}
     </span>
@@ -60,10 +62,12 @@ function TaskItem({
   onToggle: (planId: number, taskId: number) => void;
   onDelete: (planId: number, taskId: number) => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div
       onClick={() => onToggle(planId, task.id)}
-      className="flex items-center gap-3 p-3 bg-white/5 rounded-lg mb-2 hover:bg-white/10 transition group cursor-pointer text-right"
+      className="flex items-center gap-3 p-3 bg-white/5 rounded-lg mb-2 hover:bg-white/10 transition group cursor-pointer text-start"
     >
       <input
         type="checkbox"
@@ -77,7 +81,7 @@ function TaskItem({
       />
       <span
         className={`text-sm flex-1 transition-all wrap-break-word ${
-          task.done ? "text-gray-500 line-through" : "text-white"
+          task.done ? "text-gray-500 line-through" : "text-gray-300"
         }`}
       >
         {task.text}
@@ -88,9 +92,9 @@ function TaskItem({
           e.stopPropagation();
           onDelete(planId, task.id);
         }}
-        className="text-gray-600 hover:text-[#E30613] text-xs opacity-100 md:opacity-0 group-hover:opacity-100 transition p-1 shrink-0"
+        className="text-gray-500 hover:text-[#E30613] text-xs opacity-100 md:opacity-0 group-hover:opacity-100 transition p-1 shrink-0"
       >
-        مسح
+        {t("planner.deleteTask")}
       </button>
     </div>
   );
@@ -110,6 +114,7 @@ function PlanCard({
   onDeleteTask: (planId: number, taskId: number) => void;
   onAddTask: (planId: number, text: string, deadline: string) => void;
 }) {
+  const { t } = useTranslation();
   const [newTaskText, setNewTaskText] = useState("");
   const [newTaskDeadline, setNewTaskDeadline] = useState("");
   const [showDateInput, setShowDateInput] = useState(false);
@@ -117,7 +122,7 @@ function PlanCard({
   const totalTasks = plan.tasks.length;
   const doneTasks = plan.tasks.filter((t) => t.done).length;
   const progress = totalTasks === 0 ? 0 : Math.round((doneTasks / totalTasks) * 100);
-  const { text: daysText, isOverdue } = getDaysText(plan.endDate);
+  const { text: daysText, isOverdue } = getDaysInfo(plan.endDate, t);
 
   const handleAddTask = () => {
     if (!newTaskText.trim()) return;
@@ -130,23 +135,23 @@ function PlanCard({
   return (
     <div className="bg-[#1a1a1a] p-5 sm:p-6 rounded-2xl border-t-4 border-[#E30613] relative overflow-hidden group/plan mt-2 shadow-sm hover:shadow-md transition">
       {/* Header */}
-      <div className="flex justify-between items-start mb-4 pr-1">
-        <div className="max-w-[70%] text-right">
+      <div className="flex justify-between items-start mb-4 pe-1">
+        <div className="max-w-[70%] text-start">
           <h3 className="text-xl font-bold text-white mb-1">{plan.title}</h3>
           <span
             className={`inline-block text-xs font-bold px-2 py-1 rounded bg-white/5 ${
               isOverdue ? "text-[#E30613]" : "text-gray-400"
             }`}
           >
-            خطة {plan.days} أيام — {daysText}
+            {t("planner.planDays", { days: plan.days, daysText })}
           </span>
         </div>
-        <div className="flex items-center gap-3 mt-1 pl-2 md:pl-0">
+        <div className="flex items-center gap-3 mt-1 ps-2 md:ps-0">
           <span className="text-2xl font-black text-[#E30613]">{progress}%</span>
           <button
             onClick={() => onDelete(plan.id)}
             className="text-gray-500 transition p-2 z-10 md:opacity-0 group-hover/plan:opacity-100 bg-white/5 rounded-full hover:bg-[#E30613] hover:text-white flex items-center justify-center shrink-0"
-            title="مسح الخطة"
+            title={t("planner.deletePlanTooltip")}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -169,15 +174,15 @@ function PlanCard({
       </div>
 
       {/* Tasks */}
-      <div className="mb-4 text-right">
-        <h4 className="text-sm font-bold text-gray-300 mb-3 border-b border-white/5 pb-2">
-          المهام المطلوبة
+      <div className="mb-4 text-start">
+        <h4 className="text-sm font-bold text-gray-400 mb-3 border-b border-white/5 pb-2">
+          {t("planner.tasksTitle")}
         </h4>
         <div className="space-y-1">
-          {plan.tasks.map((t) => (
+          {plan.tasks.map((task) => (
             <TaskItem
-              key={t.id}
-              task={t}
+              key={task.id}
+              task={task}
               planId={plan.id}
               onToggle={onToggleTask}
               onDelete={onDeleteTask}
@@ -195,7 +200,7 @@ function PlanCard({
           onKeyDown={(e) => {
             if (e.key === "Enter") handleAddTask();
           }}
-          placeholder="مهمة جديدة..."
+          placeholder={t("planner.newTask")}
           className="flex-1 bg-white/5 border border-white/10 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-[#E30613] transition placeholder:text-gray-600"
         />
         <input
@@ -206,8 +211,8 @@ function PlanCard({
             if (!newTaskDeadline) setShowDateInput(false);
           }}
           onChange={(e) => setNewTaskDeadline(e.target.value)}
-          placeholder="تاريخ الانتهاء (اختياري)"
-          title="تحديد موعد نهائي للمهمة"
+          placeholder={t("planner.deadlinePlaceholder")}
+          title={t("planner.deadlineTitle")}
           className="w-full sm:w-32 lg:w-40 bg-white/5 border border-white/10 rounded-lg p-2.5 text-gray-400 text-sm focus:outline-none focus:border-[#E30613] transition placeholder:text-gray-600 sm:text-center shrink-0 focus:text-white"
           style={{ colorScheme: "dark" }}
         />
@@ -215,7 +220,7 @@ function PlanCard({
           onClick={handleAddTask}
           className="bg-white/10 hover:bg-[#E30613] text-white px-5 py-2.5 rounded-lg text-sm font-bold transition shrink-0"
         >
-          إضافة
+          {t("planner.addTask")}
         </button>
       </div>
     </div>
@@ -225,6 +230,7 @@ function PlanCard({
 // ===== PLANNER PAGE =====
 export function Planner() {
   const { showToast, showConfirm } = useApp();
+  const { t } = useTranslation();
   const [plans, setPlans] = useState<Plan[]>(() => getPlans());
   const [planTitle, setPlanTitle] = useState("");
   const [planDays, setPlanDays] = useState("");
@@ -232,7 +238,7 @@ export function Planner() {
   const handleSavePlan = () => {
     const days = parseInt(planDays);
     if (!planTitle.trim() || isNaN(days) || days <= 0) {
-      showToast("اكتب اسم الخطة وعدد الأيام بشكل صحيح!", "error");
+      showToast(t("planner.validationError"), "error");
       return;
     }
 
@@ -254,18 +260,18 @@ export function Planner() {
     setPlans(updated);
     setPlanTitle("");
     setPlanDays("");
-    showToast("تم إنشاء الخطة بنجاح!", "success");
+    showToast(t("planner.createSuccess"), "success");
   };
 
   const handleDeletePlan = (id: number) => {
     showConfirm(
-      "مسح الخطة",
-      "أكيد عايز تمسح الخطة دي بكل مهامها وتقاريرها؟",
+      t("planner.deletePlanTitle"),
+      t("planner.deletePlanMessage"),
       () => {
         const updated = plans.filter((p) => p.id !== id);
         savePlans(updated);
         setPlans(updated);
-        showToast("تم مسح الخطة.", "success");
+        showToast(t("planner.deleteSuccess"), "success");
       },
     );
   };
@@ -295,7 +301,7 @@ export function Planner() {
 
   const handleAddTask = (planId: number, text: string, deadline: string) => {
     if (!text) {
-      showToast("اكتب المهمة الأول!", "error");
+      showToast(t("planner.taskValidation"), "error");
       return;
     }
     const updated = plans.map((p) => {
@@ -312,23 +318,25 @@ export function Planner() {
     setPlans(updated);
   };
 
+  const inputClass = "w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#E30613] transition placeholder:text-gray-600";
+
   return (
     <div>
       <header className="mb-12">
         <h1 className="text-3xl md:text-4xl font-extrabold text-white">
-          خطة الأيام
+          {t("planner.title")}
         </h1>
       </header>
 
       {/* New Plan Form */}
       <div className="bg-[#1a1a1a] p-6 rounded-2xl border-t-4 border-[#E30613] max-w-3xl mb-10">
         <h3 className="text-[#E30613] font-bold text-xl mb-4 border-b border-white/5 pb-2">
-          خطة جديدة
+          {t("planner.newPlan")}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label className="text-xs text-gray-500 block mb-1">
-              اسم الخطة / الهدف
+              {t("planner.planNameLabel")}
             </label>
             <input
               type="text"
@@ -337,13 +345,13 @@ export function Planner() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleSavePlan();
               }}
-              placeholder="مثال: زنقة ميد، زنقة فاينل، أو تاسكات"
-              className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#E30613] transition placeholder:text-gray-600"
+              placeholder={t("planner.planNamePlaceholder")}
+              className={inputClass}
             />
           </div>
           <div>
             <label className="text-xs text-gray-500 block mb-1">
-              عدد الأيام
+              {t("planner.daysLabel")}
             </label>
             <input
               type="number"
@@ -352,9 +360,9 @@ export function Planner() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleSavePlan();
               }}
-              placeholder="مثال: 10"
+              placeholder={t("planner.daysPlaceholder")}
               min={1}
-              className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#E30613] transition placeholder:text-gray-600"
+              className={inputClass}
             />
           </div>
         </div>
@@ -363,7 +371,7 @@ export function Planner() {
             onClick={handleSavePlan}
             className="bg-[#E30613] text-white px-6 py-2 rounded-lg hover:bg-[#c30510] transition-all font-bold tracking-wide"
           >
-            إنشاء الخطة
+            {t("planner.createPlan")}
           </button>
         </div>
       </div>
@@ -372,7 +380,7 @@ export function Planner() {
       <div className="max-w-3xl space-y-6">
         {plans.length === 0 ? (
           <div className="text-center py-12 text-gray-600">
-            <p className="text-sm">مفيش خطط حالياً.. ابدأ خطط لأهدافك!</p>
+            <p className="text-sm">{t("planner.emptyState")}</p>
           </div>
         ) : (
           plans.map((plan) => (

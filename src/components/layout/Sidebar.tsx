@@ -1,20 +1,21 @@
 import { NavLink } from "react-router-dom";
 import { useApp } from "../../context/AppContext";
+import { useTranslation } from "react-i18next";
 
 // ===== NAV ITEMS =====
 interface NavItem {
   to: string;
-  label: string;
+  labelKey: string;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { to: "/", label: "الرئيسية" },
-  { to: "/diary", label: "اليوميات" },
-  { to: "/subjects", label: "مواد الكلية" },
-  { to: "/courses", label: "تتبع الكورسات" },
-  { to: "/planner", label: "خطة الأيام" },
-  { to: "/settings", label: "الإعدادات" },
-  { to: "/contact", label: "تواصل معي" },
+  { to: "/", labelKey: "nav.home" },
+  { to: "/diary", labelKey: "nav.diary" },
+  { to: "/subjects", labelKey: "nav.subjects" },
+  { to: "/courses", labelKey: "nav.courses" },
+  { to: "/planner", labelKey: "nav.planner" },
+  { to: "/settings", labelKey: "nav.settings" },
+  { to: "/contact", labelKey: "nav.contact" },
 ];
 
 const ACTIVE_CLASS =
@@ -24,44 +25,51 @@ const INACTIVE_CLASS =
 
 export function Sidebar() {
   const { isSidebarOpen, closeSidebar } = useApp();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === "ar";
 
   return (
     <>
-      {/* Mobile Overlay */}
-      <div
-        onClick={closeSidebar}
-        className={`fixed inset-0 bg-black/60 z-40 md:hidden transition-opacity duration-300 ${
-          isSidebarOpen
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
-        }`}
-      />
+      {/* Mobile backdrop */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 z-40 md:hidden"
+          onClick={closeSidebar}
+        />
+      )}
 
       {/* Sidebar */}
       <aside
         className={`
-          fixed md:sticky md:top-0 inset-y-0 right-0 z-50 w-64
-          bg-[#1a1a1a] h-screen p-6 border-l border-white/5 shadow-2xl
+          fixed md:sticky md:top-0 inset-y-0 z-50 w-64
+          bg-[#1a1a1a] h-screen p-6 shadow-2xl
           transform transition-transform duration-300 flex flex-col shrink-0
-          ${isSidebarOpen ? "translate-x-0" : "translate-x-full md:translate-x-0"}
+          ${isRTL ? "right-0 border-l border-white/5" : "left-0 border-r border-white/5"}
+          ${isSidebarOpen
+            ? "translate-x-0 visible pointer-events-auto"
+            : isRTL
+              ? "translate-x-full md:translate-x-0 invisible pointer-events-none md:visible md:pointer-events-auto"
+              : "-translate-x-full md:translate-x-0 invisible pointer-events-none md:visible md:pointer-events-auto"
+          }
         `}
       >
         {/* Logo + Lines */}
-        <div className="mb-10 flex justify-between items-start shrink-0">
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-2xl font-bold tracking-wider">
+            <h1 className="text-2xl font-bold tracking-wider">
               Maro <span className="text-[#E30613]">DASH</span>
-            </h2>
-            <div className="mt-2 space-y-1">
-              <div className="h-1 w-17 bg-[#E30613] zsc-line" />
-              <div className="h-1 w-11.25 bg-[#E30613] zsc-line" />
+            </h1>
+            <div className="flex flex-col gap-1 mt-2">
+              <span className="w-12 h-1 bg-[#E30613] rounded-full zsc-line" />
+              <span className="w-8 h-1 bg-[#E30613] rounded-full zsc-line" />
             </div>
           </div>
+
           {/* Close button — mobile only */}
           <button
             onClick={closeSidebar}
             className="md:hidden text-gray-500 hover:text-[#E30613] transition p-1"
-            aria-label="إغلاق القائمة"
+            aria-label={t("sidebar.closeMenu")}
           >
             <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -75,14 +83,14 @@ export function Sidebar() {
         </div>
 
         {/* Nav */}
-        <nav className="space-y-2 flex-1 mt-4 overflow-y-auto pr-1 pb-24 md:pb-0">
+        <nav className="space-y-2 flex-1 mt-4 overflow-y-auto pe-1 pb-24 md:pb-0">
           <NavLink
             to="/"
             end
             onClick={closeSidebar}
             className={({ isActive }) => (isActive ? ACTIVE_CLASS : INACTIVE_CLASS)}
           >
-            الرئيسية
+            {t("nav.home")}
           </NavLink>
 
           <hr className="border-t border-[#E30613]/20 my-4 shadow-[0_0_10px_rgba(227,6,19,0.1)]" />
@@ -94,7 +102,7 @@ export function Sidebar() {
               onClick={closeSidebar}
               className={({ isActive }) => (isActive ? ACTIVE_CLASS : INACTIVE_CLASS)}
             >
-              {item.label}
+              {t(item.labelKey)}
             </NavLink>
           ))}
 
@@ -107,7 +115,7 @@ export function Sidebar() {
               onClick={closeSidebar}
               className={({ isActive }) => (isActive ? ACTIVE_CLASS : INACTIVE_CLASS)}
             >
-              {item.label}
+              {t(item.labelKey)}
             </NavLink>
           ))}
         </nav>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useApp } from "../context/AppContext";
 import { getDiaryEntries, saveDiaryEntries } from "../utils/storage";
 import type { DiaryEntry } from "../types";
@@ -11,6 +12,8 @@ function EntryCard({
   entry: DiaryEntry;
   onDelete: (id: number) => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="bg-[#1a1a1a] p-5 rounded-2xl border-t-4 border-[#E30613]">
       <div className="flex items-center justify-between mb-3">
@@ -22,24 +25,24 @@ function EntryCard({
                 : "bg-white/5 text-gray-300"
             }`}
           >
-            {entry.type === "course" ? "كورس خارجي" : "مادة كلية"}
+            {entry.type === "course" ? t("diary.typeCourse") : t("diary.typeSubject")}
           </span>
-          <span className="text-xs text-gray-600">{entry.date}</span>
+          <span className="text-xs text-gray-500">{entry.date}</span>
         </div>
         <button
           onClick={() => onDelete(entry.id)}
-          className="text-gray-600 hover:text-[#E30613] transition text-sm"
+          className="text-gray-500 hover:text-[#E30613] transition text-sm"
         >
-          مسح
+          {t("diary.delete")}
         </button>
       </div>
       <p className="text-sm text-gray-400 mb-1">
-        المادة: <span className="text-white font-bold">{entry.subject}</span>
+        {t("diary.subjectField")} <span className="text-white font-bold">{entry.subject}</span>
       </p>
       <p className="text-sm text-gray-300">✅ {entry.done}</p>
       {entry.remaining && (
         <p className="text-xs text-gray-500 mt-2 pt-2 border-t border-white/5">
-          لسه: {entry.remaining}
+          {t("diary.remaining")} {entry.remaining}
         </p>
       )}
       {entry.notes && (
@@ -52,6 +55,7 @@ function EntryCard({
 // ===== DIARY PAGE =====
 export function Diary() {
   const { showToast, showConfirm } = useApp();
+  const { t } = useTranslation();
 
   const [entries, setEntries] = useState<DiaryEntry[]>(() => getDiaryEntries());
   const [type, setType] = useState<"subject" | "course">("subject");
@@ -62,7 +66,7 @@ export function Diary() {
 
   const handleSave = () => {
     if (!subject.trim() || !done.trim()) {
-      showToast("اكتب اسم المادة وإيه اللي عملته!", "error");
+      showToast(t("diary.validationError"), "error");
       return;
     }
 
@@ -74,9 +78,8 @@ export function Diary() {
       remaining: remaining.trim(),
       notes: notes.trim(),
       date: new Date().toLocaleDateString("ar-EG", {
-        weekday: "long",
         year: "numeric",
-        month: "long",
+        month: "short",
         day: "numeric",
       }),
     };
@@ -91,24 +94,24 @@ export function Diary() {
     setRemaining("");
     setNotes("");
 
-    showToast("تم حفظ الإنجاز بنجاح يا بطل! ", "success");
+    showToast(t("diary.saveSuccess"), "success");
   };
 
   const handleDelete = (id: number) => {
     const updated = entries.filter((e) => e.id !== id);
     saveDiaryEntries(updated);
     setEntries(updated);
-    showToast("تم مسح الإنجاز.", "success");
+    showToast(t("diary.deleteSuccess"), "success");
   };
 
   const handleClearAll = () => {
     showConfirm(
-      "مسح السجلات",
-      "أكيد عايز تمسح كل السجلات؟ (مش هتقدر ترجعهم تاني)",
+      t("diary.clearTitle"),
+      t("diary.clearMessage"),
       () => {
         saveDiaryEntries([]);
         setEntries([]);
-        showToast("تم مسح كل السجلات.", "success");
+        showToast(t("diary.clearSuccess"), "success");
       },
     );
   };
@@ -116,34 +119,34 @@ export function Diary() {
   return (
     <div>
       <header className="mb-12">
-        <h1 className="text-4xl font-extrabold text-white">اليوميات</h1>
+        <h1 className="text-4xl font-extrabold text-white">{t("diary.title")}</h1>
       </header>
 
       {/* Form */}
       <div className="bg-[#1a1a1a] p-6 rounded-2xl border-t-4 border-[#E30613] max-w-2xl mb-10">
         <h3 className="text-[#E30613] font-bold text-xl mb-4 border-b border-white/5 pb-2">
-          سجل إنجاز جديد
+          {t("diary.newEntry")}
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
-            <label className="text-xs text-gray-500 block mb-1">النوع</label>
+            <label className="text-xs text-gray-500 block mb-1">{t("diary.typeLabel")}</label>
             <select
               value={type}
               onChange={(e) => setType(e.target.value as "subject" | "course")}
               className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#E30613] transition"
             >
               <option value="subject" className="bg-[#1a1a1a]">
-                مادة كلية
+                {t("diary.typeSubject")}
               </option>
               <option value="course" className="bg-[#1a1a1a]">
-                كورس خارجي
+                {t("diary.typeCourse")}
               </option>
             </select>
           </div>
           <div>
             <label className="text-xs text-gray-500 block mb-1">
-              اسم المادة / الكورس
+              {t("diary.subjectLabel")}
             </label>
             <input
               type="text"
@@ -152,7 +155,7 @@ export function Diary() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleSave();
               }}
-              placeholder="مثال: هندسة البرمجيات"
+              placeholder={t("diary.subjectPlaceholder")}
               className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#E30613] transition placeholder:text-gray-600"
             />
           </div>
@@ -160,7 +163,7 @@ export function Diary() {
 
         <div className="mb-4">
           <label className="text-xs text-gray-500 block mb-1">
-            عملت إيه النهارده؟
+            {t("diary.doneLabel")}
           </label>
           <input
             type="text"
@@ -169,14 +172,14 @@ export function Diary() {
             onKeyDown={(e) => {
               if (e.key === "Enter") handleSave();
             }}
-            placeholder="مثال: حليت 5 أسئلة على الـ Trees"
+            placeholder={t("diary.donePlaceholder")}
             className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#E30613] transition placeholder:text-gray-600"
           />
         </div>
 
         <div className="mb-4">
           <label className="text-xs text-gray-500 block mb-1">
-            لسه إيه اللي باقي؟
+            {t("diary.remainingLabel")}
           </label>
           <input
             type="text"
@@ -185,30 +188,30 @@ export function Diary() {
             onKeyDown={(e) => {
               if (e.key === "Enter") handleSave();
             }}
-            placeholder="مثال: لسه Chapter 4 و 5"
+            placeholder={t("diary.remainingPlaceholder")}
             className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#E30613] transition placeholder:text-gray-600"
           />
         </div>
 
         <div className="mb-6">
           <label className="text-xs text-gray-500 block mb-1">
-            ملاحظات إضافية (اختياري)
+            {t("diary.notesLabel")}
           </label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="أي حاجة تانية عايز تسجلها..."
+            placeholder={t("diary.notesPlaceholder")}
             rows={3}
             className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#E30613] transition placeholder:text-gray-600 resize-y"
           />
         </div>
 
-        <div className="flex justify-end">
+        <div>
           <button
             onClick={handleSave}
             className="bg-[#E30613] text-white px-6 py-2 rounded-lg hover:bg-[#c30510] transition-all"
           >
-            حفظ الإنجاز
+            {t("diary.save")}
           </button>
         </div>
       </div>
@@ -216,20 +219,20 @@ export function Diary() {
       {/* Entries List */}
       <div className="max-w-2xl">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-xs text-gray-600 tracking-widest">السجلات السابقة</p>
+          <p className="text-xs text-gray-600 tracking-widest">{t("diary.previousEntries")}</p>
           {entries.length > 0 && (
             <button
               onClick={handleClearAll}
               className="text-xs text-gray-400 hover:text-[#E30613] transition font-bold"
             >
-              مسح الكل
+              {t("diary.clearAll")}
             </button>
           )}
         </div>
 
         {entries.length === 0 ? (
           <div className="text-center py-12 text-gray-600">
-            <p className="text-sm">مفيش سجلات لحد دلوقتي..</p>
+            <p className="text-sm">{t("diary.empty")}</p>
           </div>
         ) : (
           <div className="space-y-4">

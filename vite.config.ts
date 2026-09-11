@@ -8,4 +8,17 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-});
+  build: {
+    rollupOptions: {
+      input: {
+        main: 'index.html',
+        sw: 'src/sw.ts',
+      },
+      output: {
+        entryFileNames: (chunkInfo) => {
+          return chunkInfo.name === 'sw' ? 'sw.js' : 'assets/[name]-[hash].js';
+        },
+      },
+    },
+  },
+});

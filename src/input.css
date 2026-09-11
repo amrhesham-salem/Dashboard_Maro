@@ -21,6 +21,10 @@
   animation: var(--animate-line-slide);
 }
 
+[dir="ltr"] .zsc-line {
+  transform-origin: left;
+}
+
 /* Accordion transition */
 .transition-350 {
   transition-duration: 350ms;

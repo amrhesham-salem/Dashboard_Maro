@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useApp } from "../context/AppContext";
 import {
   getCoursesConfig,
@@ -10,6 +11,7 @@ import type { CourseConfig } from "../types";
 // ===== COURSE CARD =====
 function CourseCard({ course }: { course: CourseConfig }) {
   const { showToast } = useApp();
+  const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -18,41 +20,40 @@ function CourseCard({ course }: { course: CourseConfig }) {
     return data[course.name] ?? 0;
   });
 
-  const [displayPercent, setDisplayPercent] = useState(percent);
+  // Animated counter for the percentage display
+  const [displayPercent, setDisplayPercent] = useState<number>(percent);
 
-  // Clean up animation interval on unmount
   useEffect(() => {
+    // Smooth number animation up to target
+    if (intervalRef.current) clearInterval(intervalRef.current);
+
+    const start = displayPercent;
+    const end = percent;
+    if (start === end) return;
+
+    const step = end > start ? 1 : -1;
+    const duration = 600; // ms
+    const totalSteps = Math.abs(end - start);
+    const intervalMs = Math.max(15, Math.floor(duration / totalSteps));
+
+    let current = start;
+    intervalRef.current = setInterval(() => {
+      current += step;
+      setDisplayPercent(current);
+      if (current === end) {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+      }
+    }, intervalMs);
+
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, []);
-
-  // Animated counter — matches script.js addCoursePercent() animation
-  const animateCounter = (from: number, to: number) => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    const steps = 30;
-    const dur = 1000;
-    const stepTime = dur / steps;
-    const valStep = (to - from) / steps;
-    let i = 0;
-    let current = from;
-    intervalRef.current = setInterval(() => {
-      i++;
-      current += valStep;
-      if (i >= steps) {
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        intervalRef.current = null;
-        setDisplayPercent(to);
-      } else {
-        setDisplayPercent(Math.round(current));
-      }
-    }, stepTime);
-  };
+  }, [percent]);
 
   const handleAdd = () => {
     const val = parseInt(inputRef.current?.value ?? "");
     if (isNaN(val) || val <= 0) {
-      showToast("اكتب نسبة صحيحة الأول!", "error");
+      showToast(t("courses.validationError"), "error");
       return;
     }
 
@@ -61,11 +62,10 @@ function CourseCard({ course }: { course: CourseConfig }) {
     data[course.name] = updated;
     saveCoursesData(data);
 
-    animateCounter(percent, updated);
     setPercent(updated);
 
     if (inputRef.current) inputRef.current.value = "";
-    showToast(`عاش! تم إضافة ${val}% لتقدم الكورس.`, "success");
+    showToast(t("courses.addSuccess", { val }), "success");
   };
 
   const handleReset = () => {
@@ -73,7 +73,7 @@ function CourseCard({ course }: { course: CourseConfig }) {
     data[course.name] = 0;
     saveCoursesData(data);
     setPercent(0);
-    setDisplayPercent(0);
+    showToast(t("courses.resetSuccess"), "success");
   };
 
   return (
@@ -85,13 +85,13 @@ function CourseCard({ course }: { course: CourseConfig }) {
           style={{ width: `${percent}%` }}
         />
       </div>
-      <p className="text-xs text-gray-500 mb-4">{displayPercent}% مكتمل</p>
+      <p className="text-xs text-gray-500 mb-4">{t("courses.completed", { percent: displayPercent })}</p>
 
       <div className="flex items-center gap-2">
         <input
           ref={inputRef}
           type="number"
-          placeholder="مثال: 15"
+          placeholder={t("courses.placeholder")}
           min={1}
           max={100}
           onKeyDown={(e) => {
@@ -103,14 +103,14 @@ function CourseCard({ course }: { course: CourseConfig }) {
           onClick={handleAdd}
           className="bg-[#E30613]/10 hover:bg-[#E30613]/20 text-[#E30613] text-sm px-4 py-2 rounded-lg transition font-bold shrink-0"
         >
-          إضافة %
+          {t("courses.addPercent")}
         </button>
       </div>
       <button
         onClick={handleReset}
         className="w-full mt-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-xs px-3 py-2 rounded-lg transition"
       >
-        تصفير الإنجاز
+        {t("courses.resetProgress")}
       </button>
     </div>
   );
@@ -118,12 +118,13 @@ function CourseCard({ course }: { course: CourseConfig }) {
 
 // ===== COURSES PAGE =====
 export function Courses() {
+  const { t } = useTranslation();
   const crsCfg = getCoursesConfig();
 
   return (
     <div>
       <header className="mb-12">
-        <h1 className="text-4xl font-extrabold text-white">تتبع الكورسات</h1>
+        <h1 className="text-4xl font-extrabold text-white">{t("courses.title")}</h1>
       </header>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-6xl">
         {crsCfg.map((c) => (

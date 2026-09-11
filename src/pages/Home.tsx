@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   getSubjectsConfig,
   getSubjectsData,
@@ -53,7 +54,7 @@ function MiniCard({
             style={{ width: `${percent}%` }}
           />
         </div>
-        <p className="text-xs text-gray-500 text-left">{sub}</p>
+        <p className="text-xs text-gray-500 text-start">{sub}</p>
       </div>
     </div>
   );
@@ -61,6 +62,8 @@ function MiniCard({
 
 // ===== HOME PAGE =====
 export function Home() {
+  const { t } = useTranslation();
+
   const subCfg = getSubjectsConfig();
   const subData = getSubjectsData();
   const crsCfg = getCoursesConfig();
@@ -91,33 +94,33 @@ export function Home() {
   return (
     <div>
       <header className="mb-10">
-        <h1 className="text-4xl font-extrabold">
-          جاهز لإنجاز جديد{" "}
-          <span className="text-[#E30613]">النهاردة؟</span>
+        <h1 className="text-4xl font-extrabold text-white">
+          {t("home.title")}{" "}
+          <span className="text-[#E30613]">{t("home.titleHighlight")}</span>
         </h1>
       </header>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mb-12">
         <StatCard
-          label="محاضرات خلصت"
+          label={t("home.lecturesDone")}
           value={String(doneLec)}
-          sub={`من ${totalLec} محاضرة`}
+          sub={t("home.lecturesFrom", { total: totalLec })}
         />
         <StatCard
-          label="متوسط المواد"
+          label={t("home.subjectsAvg")}
           value={`${subAvg}%`}
-          sub="إجمالي التقدم"
+          sub={t("home.overallProgress")}
         />
         <StatCard
-          label="متوسط الكورسات"
+          label={t("home.coursesAvg")}
           value={`${crsAvg}%`}
-          sub="إجمالي التقدم"
+          sub={t("home.overallProgress")}
         />
       </div>
 
       {/* Subjects Mini Cards */}
-      <p className="text-sm text-gray-400 mb-4 font-bold">مواد الكلية</p>
+      <p className="text-sm text-gray-400 mb-4 font-bold">{t("home.subjectsLabel")}</p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mb-12">
         {subCfg.map((sub) => {
           const lectures =
@@ -129,14 +132,14 @@ export function Home() {
               key={sub.name}
               name={sub.name}
               percent={percent}
-              sub={`${done} من ${sub.lectures} محاضرة`}
+              sub={t("home.lectureCount", { done, total: sub.lectures })}
             />
           );
         })}
       </div>
 
       {/* Courses Mini Cards */}
-      <p className="text-sm text-gray-400 mb-4 font-bold">تتبع الكورسات</p>
+      <p className="text-sm text-gray-400 mb-4 font-bold">{t("home.coursesLabel")}</p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-5xl">
         {crsCfg.map((c) => {
           const percent = crsData[c.name] ?? 0;
@@ -145,7 +148,7 @@ export function Home() {
               key={c.name}
               name={c.name}
               percent={percent}
-              sub="التقدم الكلي"
+              sub={t("home.totalProgress")}
             />
           );
         })}
